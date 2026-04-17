@@ -1,0 +1,13 @@
+cabal-version:      3.0
+name:               demo-scotty-sqlite
+version:            0.1.0.0
+build-type:         Simple
+
+executable demo-scotty-sqlite
+  main-is:          Main.hs
+  hs-source-dirs:   app
+  default-language: Haskell2010
+  ghc-options:      -Wall -Wcompat -threaded
+  build-depends:
+      base >=4.19 && <4.21,
+      scotty >=0.22 && <0.23
