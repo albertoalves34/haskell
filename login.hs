@@ -4,7 +4,7 @@
 import Routes
 import Web.Scotty
 import Database.SQLite.Simple
-import Banco  -- ← Importa o módulo
+import Banco  
 
 loginUser :: Connection -> String -> String -> IO (Either String String)
 loginUser conn email passsword = do

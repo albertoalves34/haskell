@@ -12,7 +12,7 @@ registerRoute conn = do
     email <- param "email"      
     password <- param "password"
     
-    -- Chama função de Banco.hs
+  
     liftIO $ addUser conn email password
     
     json $ object ["status" .= ("sucesso" :: String)]
