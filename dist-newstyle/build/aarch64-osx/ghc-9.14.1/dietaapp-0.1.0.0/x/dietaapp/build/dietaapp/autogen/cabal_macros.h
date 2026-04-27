@@ -30,6 +30,16 @@
   (major1) == 4 && (major2) <  22 || \
   (major1) == 4 && (major2) == 22 && (minor) <= 0)
 #endif /* MIN_VERSION_base */
+/* package http-types-0.12.4 */
+#ifndef VERSION_http_types
+#define VERSION_http_types "0.12.4"
+#endif /* VERSION_http_types */
+#ifndef MIN_VERSION_http_types
+#define MIN_VERSION_http_types(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  12 || \
+  (major1) == 0 && (major2) == 12 && (minor) <= 4)
+#endif /* MIN_VERSION_http_types */
 /* package scotty-0.22 */
 #ifndef VERSION_scotty
 #define VERSION_scotty "0.22"
@@ -40,6 +50,16 @@
   (major1) == 0 && (major2) <  22 || \
   (major1) == 0 && (major2) == 22 && (minor) <= 0)
 #endif /* MIN_VERSION_scotty */
+/* package sqlite-simple-0.4.19.0 */
+#ifndef VERSION_sqlite_simple
+#define VERSION_sqlite_simple "0.4.19.0"
+#endif /* VERSION_sqlite_simple */
+#ifndef MIN_VERSION_sqlite_simple
+#define MIN_VERSION_sqlite_simple(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  4 || \
+  (major1) == 0 && (major2) == 4 && (minor) <= 19)
+#endif /* MIN_VERSION_sqlite_simple */
 /* package wai-cors-0.2.7 */
 #ifndef VERSION_wai_cors
 #define VERSION_wai_cors "0.2.7"
