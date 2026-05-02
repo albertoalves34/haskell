@@ -35,12 +35,12 @@ nivelAtividadeParaFator ModeramenteAtivo = 1.55
 nivelAtividadeParaFator MuitoAtivo = 1.725
 nivelAtividadeParaFator ExtraAtivo = 1.9
 
-
+-- Taxa Metabólica Basal
 calcularTMB :: Sexo -> Double -> Double -> Int -> Double
 calcularTMB Masculino peso altura idade = 10 * peso + 6.25 * altura - 5 * fromIntegral(idade) + 5
 calcularTMB Feminino peso altura idade = 10 * peso + 6.25 * altura - 5 * fromIntegral(idade) - 161
 
-
+-- Total daily Energy Expenditure
 calcularTDEE :: Double -> NivelAtividade -> Double
 calcularTDEE tmb nivel = tmb * nivelAtividadeParaFator nivel
 
