@@ -2,17 +2,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Web.Scotty
-import Data.Aeson 
-import GHC.Generics 
+import Data.Aeson
+import GHC.Generics
 import Network.Wai.Middleware.Cors
-import Control.Monad.IO.Class 
-import Network.HTTP.Types.Status 
+import Control.Monad.IO.Class
+import Network.HTTP.Types.Status
 import Database.SQLite.Simple
+import System.Environment (lookupEnv)
+import Data.Maybe (fromMaybe)
+import Text.Read (readMaybe)
 import Banco
-import Login 
+import Login
 import Calculate
-import Alimento 
-import Plano 
+import Alimento
+import Plano
 
 -- ─── Tipos de dados para as rotas ────────────────────────────────────────────
 
@@ -84,12 +87,18 @@ tiposValidos = ["cafe", "almoco", "lanche", "jantar"]
 
 main :: IO ()
 main = do
-  conn <- open "banco.db"
+  portStr <- lookupEnv "PORT"
+  let port = fromMaybe 3000 (portStr >>= readMaybe)
+  conn <- open "/data/banco.db"
   initDB conn
   initAlimentosDB conn
-  scotty 3000 $ do
+  seedDB conn
+  scotty port $ do
     middleware $ cors $ const $ Just simpleCorsResourcePolicy
       { corsRequestHeaders = ["Content-Type"] }
+
+    get "/healthz" $ do
+      json $ object ["status" .= ("ok" :: String)]
 
     -- Registro de usuário
     post "/api/registro" $ do

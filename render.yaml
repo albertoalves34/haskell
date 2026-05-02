@@ -1,17 +1,21 @@
 services:
-  - name: demo-scotty-codespace-2026a
+  - name: dietaapp
     type: web
     runtime: docker
     plan: free
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./backend/Dockerfile
     dockerContext: .
     healthCheckPath: /healthz
     autoDeployTrigger: commit
+    disk:
+      name: dietaapp-db
+      mountPath: /data
+      sizeGB: 1
     buildFilter:
       paths:
-        - Dockerfile
+        - backend/**
         - render.yaml
-        - src/**
+        - cabal.project
       ignoredPaths:
         - README.md
-        - assets/**    
+        - frontend/**

@@ -1,2 +1,4 @@
 dist-newstyle/
 src/
+**/TestesEsqueleto.hs
+*.DS_Store
