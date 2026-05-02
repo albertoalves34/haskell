@@ -89,7 +89,8 @@ main :: IO ()
 main = do
   portStr <- lookupEnv "PORT"
   let port = fromMaybe 3000 (portStr >>= readMaybe)
-  conn <- open "/data/banco.db"
+  dbPath <- fmap (fromMaybe "banco.db") (lookupEnv "DB_PATH")
+  conn <- open dbPath
   initDB conn
   initAlimentosDB conn
   seedDB conn
