@@ -3,7 +3,7 @@ services:
     type: web
     runtime: docker
     plan: free
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /healthz
     autoDeployTrigger: commit

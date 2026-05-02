@@ -13,8 +13,7 @@ RUN cabal update && cabal build --only-dependencies
 
 COPY backend/ /app/
 
-RUN cabal build exe:dietaapp && \
-    cp "$(cabal list-bin dietaapp)" /usr/local/bin/dietaapp
+RUN cabal install exe:dietaapp --install-method=copy --installdir=/usr/local/bin
 
 EXPOSE 3000
 
