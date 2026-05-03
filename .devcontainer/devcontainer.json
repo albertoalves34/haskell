@@ -1,0 +1,44 @@
+{
+  "name": "DietaApp - Haskell",
+  "image": "haskell:9.8.4",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true
+    }
+  },
+  "onCreateCommand": "apt-get update && apt-get install -y libsqlite3-dev pkg-config curl && curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_INSTALL_HLS=1 sh && cabal update",
+  "postCreateCommand": "cabal build all",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "DietaApp Backend",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "haskell.haskell",
+        "justusadam.language-haskell",
+        "formulahendry.code-runner"
+      ],
+      "settings": {
+        "haskell.manageHLS": "GHCup",
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "[haskell]": {
+          "editor.defaultFormatter": "haskell.haskell"
+        }
+      }
+    }
+  },
+  "remoteEnv": {
+    "DB_PATH": "/workspaces/Dietaapp/banco.db",
+    "FRONTEND_DIR": "/workspaces/Dietaapp/frontend"
+  },
+  "mounts": [
+    "source=dietaapp-cabal-store,target=/root/.cabal,type=volume"
+  ],
+  "remoteUser": "root"
+}
