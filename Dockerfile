@@ -16,6 +16,8 @@ COPY frontend/ /app/frontend/
 
 RUN cabal install exe:dietaapp --install-method=copy --installdir=/usr/local/bin
 
+RUN mkdir -p /data
+
 ENV DB_PATH=/data/banco.db
 ENV FRONTEND_DIR=/app/frontend
 
