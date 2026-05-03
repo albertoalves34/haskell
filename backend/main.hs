@@ -89,7 +89,8 @@ main :: IO ()
 main = do
   portStr <- lookupEnv "PORT"
   let port = fromMaybe 3000 (portStr >>= readMaybe)
-  dbPath <- fmap (fromMaybe "banco.db") (lookupEnv "DB_PATH")
+  dbPath      <- fmap (fromMaybe "banco.db")  (lookupEnv "DB_PATH")
+  frontendDir <- fmap (fromMaybe "frontend")  (lookupEnv "FRONTEND_DIR")
   conn <- open dbPath
   initDB conn
   initAlimentosDB conn
@@ -100,6 +101,11 @@ main = do
 
     get "/healthz" $ do
       json $ object ["status" .= ("ok" :: String)]
+
+    get "/" $ redirect "/login"
+    get "/login"     $ file (frontendDir ++ "/login.html")
+    get "/registro"  $ file (frontendDir ++ "/registro.html")
+    get "/dashboard" $ file (frontendDir ++ "/dashboard.html")
 
     -- Registro de usuário
     post "/api/registro" $ do

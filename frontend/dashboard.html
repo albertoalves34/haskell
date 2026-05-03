@@ -371,12 +371,12 @@
     // ── Sessão ───────────────────────────────────────────────────────────────
     const userId = localStorage.getItem('userId');
     const email  = localStorage.getItem('userEmail');
-    if (!userId) window.location.href = 'login.html';
+    if (!userId) window.location.href = '/login';
     if (email)   document.getElementById('nomeUsuario').textContent = email;
 
     function sair() {
         ['userEmail','userId','calorias','objetivo'].forEach(k => localStorage.removeItem(k));
-        window.location.href = 'login.html';
+        window.location.href = '/login';
     }
 
     // ── Tabs ─────────────────────────────────────────────────────────────────
@@ -403,7 +403,7 @@
             calcObjetivo: document.getElementById('objetivo').value
         };
 
-        fetch('http://localhost:3000/api/calcular', {
+        fetch(window.location.origin + '/api/calcular', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -452,7 +452,7 @@
     }
 
     function carregarBanco() {
-        fetch(`http://localhost:3000/api/alimentos/${userId}`)
+        fetch(`${window.location.origin}/api/alimentos/${userId}`)
             .then(r => r.json())
             .then(d => { alimentosBanco = d; })
             .catch(() => {});
@@ -464,7 +464,7 @@
         document.getElementById('erroPlan').textContent = '';
         document.getElementById('planoDias').style.display = 'none';
 
-        fetch('http://localhost:3000/api/plano', {
+        fetch(window.location.origin + '/api/plano', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pdUserId: parseInt(userId), pdCalorias: parseFloat(cal), pdObjetivo: obj })
@@ -673,7 +673,7 @@
             naTipo:   document.getElementById('alTipo').value
         };
 
-        fetch('http://localhost:3000/api/alimento', {
+        fetch(window.location.origin + '/api/alimento', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

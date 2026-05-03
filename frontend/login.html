@@ -98,7 +98,7 @@
         <div id="mensagem"></div>
 
         <div class="link-registro">
-            Não tem conta? <a href="registro.html">Registre-se aqui</a>
+            Não tem conta? <a href="/registro">Registre-se aqui</a>
         </div>
     </div>
 
@@ -113,7 +113,7 @@
             divMensagem.textContent = "Verificando...";
             divMensagem.className = "";
 
-            fetch('http://localhost:3000/api/login', {
+            fetch(window.location.origin + '/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ loginEmail: email, loginPassword: senha })
@@ -126,7 +126,7 @@
                     localStorage.setItem('userEmail', email);
                     localStorage.setItem('userId', data.userId);
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/dashboard';
                     }, 1000);
                 } else {
                     divMensagem.textContent = data.message || "Erro ao fazer login.";

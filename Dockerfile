@@ -12,8 +12,12 @@ COPY backend/dietaapp.cabal /app/
 RUN cabal update && cabal build --only-dependencies
 
 COPY backend/ /app/
+COPY frontend/ /app/frontend/
 
 RUN cabal install exe:dietaapp --install-method=copy --installdir=/usr/local/bin
+
+ENV DB_PATH=/data/banco.db
+ENV FRONTEND_DIR=/app/frontend
 
 EXPOSE 3000
 
