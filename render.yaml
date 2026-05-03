@@ -14,8 +14,8 @@ services:
     buildFilter:
       paths:
         - backend/**
+        - frontend/**
         - render.yaml
         - cabal.project
       ignoredPaths:
         - README.md
-        - frontend/**
