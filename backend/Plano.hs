@@ -59,7 +59,7 @@ mkPorcao a cal = Porcao
   , pTipo     = tipoParaTexto (tipoRefeicao a)
   }
 
--- Fallback: distribui calorias igualmente entre alimentos sem considerar grupo
+-- distribui calorias igualmente entre alimentos sem considerar grupo
 escolherAlimentos :: [Alimento] -> Int -> [Alimento]
 escolherAlimentos []  _   = []
 escolherAlimentos [a] _   = [a]
@@ -122,7 +122,7 @@ montarRefeicaoDia banco tipo tipoStr metaCal diaIdx =
                     | ((grupos, frac), offset) <- zip slots [0..]
                     , Just al <- [escolherComFallback disponiveis grupos (diaIdx * nSlots + offset)]
                     ]
-      -- fallback para distribuição simples se não houver alimentos classificados
+      -- Fallback para distribuição simples se não houver alimentos classificados
       porcoesFinal = if null porcoes
                        then distribuirCal (escolherAlimentos disponiveis diaIdx) metaCal
                        else porcoes

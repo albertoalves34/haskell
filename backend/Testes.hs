@@ -7,7 +7,7 @@ import Plano
 import Login  (verificarSenha, validarRegistro)
 import Banco  (rowParaAlimento)
 
--- Alimentos auxiliares
+
 a1, a2, a3 :: Alimento
 a1 = Alimento "Frango"  165.0 31.0  0.0 3.6 Almoco Proteina
 a2 = Alimento "Arroz"   130.0  2.5 28.0 0.5 Almoco Carboidrato
@@ -21,7 +21,6 @@ bancTeste =
   , Alimento "Omelete" 154.0 11.0  1.1 12.0 Jantar Proteina
   ]
 
--- ── Calculate 
 
 testarFatorLevementeAtivo :: Test
 testarFatorLevementeAtivo = TestCase $
@@ -75,11 +74,15 @@ testarFatoresGanharMassa :: Test
 testarFatoresGanharMassa = TestCase $
   assertEqual "fatores GanharMassa" (2.0, 5.0) (fatoresPorObjetivo GanharMassa)
 
+testarFatoresManterPeso :: Test
+testarFatoresManterPeso = TestCase $
+  assertEqual "fatores ManterPeso" (2.0, 4.0) (fatoresPorObjetivo ManterPeso)
+
 testarCalcularMacros :: Test
 testarCalcularMacros = TestCase $
   assertEqual "macros PerderGordura" (Macros 140.0 222.75 17.5) (calcularMacros 1608.5 70.0 PerderGordura)
 
--- ── Alimento 
+--Alimento 
 
 testarConversaoCafeParaTexto :: Test
 testarConversaoCafeParaTexto = TestCase $
@@ -101,7 +104,33 @@ testarRoundtripTipoTexto :: Test
 testarRoundtripTipoTexto = TestCase $
   assertEqual "roundtrip Jantar" Jantar (textoParaTipo (tipoParaTexto Jantar))
 
--- ── Plano 
+-- ── Alimento (grupo)
+
+testarGrupoParaTextoProteina :: Test
+testarGrupoParaTextoProteina = TestCase $
+  assertEqual "Proteina para texto" "proteina" (grupoParaTexto Proteina)
+
+testarGrupoParaTextoCarboidrato :: Test
+testarGrupoParaTextoCarboidrato = TestCase $
+  assertEqual "Carboidrato para texto" "carboidrato" (grupoParaTexto Carboidrato)
+
+testarTextoParaGrupoProteina :: Test
+testarTextoParaGrupoProteina = TestCase $
+  assertEqual "texto para Proteina" Proteina (textoParaGrupo "proteina")
+
+testarTextoParaGrupoFruta :: Test
+testarTextoParaGrupoFruta = TestCase $
+  assertEqual "texto para Fruta" Fruta (textoParaGrupo "fruta")
+
+testarTextoParaGrupoInvalidoDefaultProteina :: Test
+testarTextoParaGrupoInvalidoDefaultProteina = TestCase $
+  assertEqual "texto invalido retorna Proteina" Proteina (textoParaGrupo "invalido")
+
+testarRoundtripGrupoTexto :: Test
+testarRoundtripGrupoTexto = TestCase $
+  assertEqual "roundtrip Leguminosa" Leguminosa (textoParaGrupo (grupoParaTexto Leguminosa))
+
+--Plano
 
 testarArredondarParaCima :: Test
 testarArredondarParaCima = TestCase $
@@ -126,12 +155,12 @@ testarSomaDistribuicaoIgualUm = TestCase $ do
 
 testarCriacaoPorcaoGramas :: Test
 testarCriacaoPorcaoGramas = TestCase $
-  let alimentoTeste = Alimento "Frango" 100.0 30.0 0.0 3.0 Almoco
+  let alimentoTeste = Alimento "Frango" 100.0 30.0 0.0 3.0 Almoco Proteina
   in assertEqual "pGramas deve ser 200.0" 200.0 (pGramas (mkPorcao alimentoTeste 200.0))
 
 testarCriacaoPorcaoCalorias :: Test
 testarCriacaoPorcaoCalorias = TestCase $
-  let alimentoTeste = Alimento "Arroz" 130.0 2.5 28.0 0.5 Almoco
+  let alimentoTeste = Alimento "Arroz" 130.0 2.5 28.0 0.5 Almoco Carboidrato
   in assertEqual "pCalorias deve ser 300.0" 300.0 (pCalorias (mkPorcao alimentoTeste 300.0))
 
 testarEscolherAlimentosListaVazia :: Test
@@ -160,6 +189,47 @@ testarDistribuirCalDoisAlimentos = TestCase $ do
   assertEqual "p1 calorias == 600.0" 600.0 (pCalorias p1)
   assertEqual "p2 calorias == 400.0" 400.0 (pCalorias p2)
 
+testarEscolherComFallbackEncontra :: Test
+testarEscolherComFallbackEncontra = TestCase $
+  assertBool "encontra alimento do grupo" (escolherComFallback [a1] [Proteina] 0 /= Nothing)
+
+testarEscolherComFallbackNaoEncontra :: Test
+testarEscolherComFallbackNaoEncontra = TestCase $
+  assertEqual "lista vazia retorna Nothing" Nothing (escolherComFallback [] [Proteina] 0)
+
+testarEscolherComFallbackFallback :: Test
+testarEscolherComFallbackFallback = TestCase $
+  let laticinios = Alimento "Iogurte" 61.0 3.5 4.7 3.3 Cafe Laticinios
+  in assertBool "usa segundo grupo como fallback" (escolherComFallback [laticinios] [Proteina, Laticinios] 0 /= Nothing)
+
+testarSlotsPorTipoCafe :: Test
+testarSlotsPorTipoCafe = TestCase $
+  assertEqual "cafe tem 3 slots" 3 (length (slotsPorTipo Cafe))
+
+testarSlotsPorTipoAlmoco :: Test
+testarSlotsPorTipoAlmoco = TestCase $
+  assertEqual "almoco tem 3 slots" 3 (length (slotsPorTipo Almoco))
+
+testarSlotsPorTipoLanche :: Test
+testarSlotsPorTipoLanche = TestCase $
+  assertEqual "lanche tem 2 slots" 2 (length (slotsPorTipo Lanche))
+
+testarSlotsPorTipoJantar :: Test
+testarSlotsPorTipoJantar = TestCase $
+  assertEqual "jantar tem 3 slots" 3 (length (slotsPorTipo Jantar))
+
+testarMontarRefeicaoDiaCalorias :: Test
+testarMontarRefeicaoDiaCalorias = TestCase $
+  assertEqual "meta calorias correta" 500.0 (rdCalorias (montarRefeicaoDia bancTeste Cafe "Café da Manhã" 500.0 1))
+
+testarMontarRefeicaoDiaTipo :: Test
+testarMontarRefeicaoDiaTipo = TestCase $
+  assertEqual "tipo texto correto" "Café da Manhã" (rdTipo (montarRefeicaoDia bancTeste Cafe "Café da Manhã" 500.0 1))
+
+testarMontarDiaNumeracao :: Test
+testarMontarDiaNumeracao = TestCase $
+  assertEqual "dpDia correto" 3 (dpDia (montarDia bancTeste ManterPeso 2000.0 3))
+
 testarPlanoSemanalTamanho :: Test
 testarPlanoSemanalTamanho = TestCase $
   assertEqual "plano tem 7 dias" 7 (length (gerarPlanoSemanal bancTeste ManterPeso 2000.0))
@@ -186,7 +256,7 @@ testarRowParaAlimento = TestCase $
       esperado = Alimento "Frango" 165.0 31.0 0.0 3.6 Almoco Proteina
   in assertEqual "rowParaAlimento converte corretamente" esperado (rowParaAlimento row)
 
--- ── Suite completa 
+--Suite completa 
 
 suiteTestes :: Test
 suiteTestes = TestList
@@ -203,12 +273,19 @@ suiteTestes = TestList
   , testarMetaGanharMassa
   , testarFatoresPerderGordura
   , testarFatoresGanharMassa
+  , testarFatoresManterPeso
   , testarCalcularMacros
   , testarConversaoCafeParaTexto
   , testarConversaoAlmocoParaTexto
   , testarConversaoTextoParaAlmoco
   , testarConversaoTextoInvalidoDefaultCafe
   , testarRoundtripTipoTexto
+  , testarGrupoParaTextoProteina
+  , testarGrupoParaTextoCarboidrato
+  , testarTextoParaGrupoProteina
+  , testarTextoParaGrupoFruta
+  , testarTextoParaGrupoInvalidoDefaultProteina
+  , testarRoundtripGrupoTexto
   , testarArredondarParaCima
   , testarArredondarParaBaixo
   , testarDistribuicaoPerderGordura
@@ -222,6 +299,16 @@ suiteTestes = TestList
   , testarDistribuirCalListaVazia
   , testarDistribuirCalUmAlimento
   , testarDistribuirCalDoisAlimentos
+  , testarEscolherComFallbackEncontra
+  , testarEscolherComFallbackNaoEncontra
+  , testarEscolherComFallbackFallback
+  , testarSlotsPorTipoCafe
+  , testarSlotsPorTipoAlmoco
+  , testarSlotsPorTipoLanche
+  , testarSlotsPorTipoJantar
+  , testarMontarRefeicaoDiaCalorias
+  , testarMontarRefeicaoDiaTipo
+  , testarMontarDiaNumeracao
   , testarPlanoSemanalTamanho
   , testarPlanoSemanalDiasCorretos
   , testarVerificarSenha
