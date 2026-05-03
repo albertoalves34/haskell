@@ -9,6 +9,7 @@ import Control.Monad.IO.Class
 import Network.HTTP.Types.Status
 import Database.SQLite.Simple
 import System.Environment (lookupEnv)
+import System.Directory (doesDirectoryExist)
 import Data.Maybe (fromMaybe)
 import Text.Read (readMaybe)
 import Banco
@@ -90,7 +91,10 @@ main = do
   portStr <- lookupEnv "PORT"
   let port = fromMaybe 3000 (portStr >>= readMaybe)
   dbPath      <- fmap (fromMaybe "banco.db")  (lookupEnv "DB_PATH")
-  frontendDir <- fmap (fromMaybe "frontend")  (lookupEnv "FRONTEND_DIR")
+  frontendDir <- lookupEnv "FRONTEND_DIR" >>= \case
+    Just p  -> return p
+    Nothing -> doesDirectoryExist "frontend" >>= \exists ->
+      return (if exists then "frontend" else "../frontend")
   conn <- open dbPath
   initDB conn
   initAlimentosDB conn

@@ -11,7 +11,9 @@ executable dietaapp
                       aeson,
                       wai-cors,
                       sqlite-simple,
-                      http-types
+                      http-types,
+                      directory
 
     ghc-options:      -threaded
     default-language: Haskell2010
+    default-extensions: LambdaCase
