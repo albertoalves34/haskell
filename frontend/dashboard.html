@@ -83,6 +83,11 @@
             background: #f0f4ff; padding: 10px 15px; font-weight: bold; color: #333;
         }
         .refeicao-kcal { font-size: 13px; color: #007bff; }
+        .btn-add-food {
+            padding: 3px 10px; background: #28a745; color: white;
+            border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: normal;
+        }
+        .btn-add-food:hover { background: #218838; }
 
         .porcao-row {
             display: flex; justify-content: space-between; align-items: center;
@@ -94,14 +99,14 @@
         .porcao-info { font-size: 12px; color: #888; }
         .porcao-hint { font-size: 11px; color: #aaa; margin-left: 8px; }
 
-        /* Modal */
-        #modalOverlay {
+        /* Modais */
+        .modal-overlay {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.55);
             z-index: 1000; justify-content: center; align-items: center;
         }
-        #modalOverlay.show { display: flex; }
-        #modalBox {
+        .modal-overlay.show { display: flex; }
+        .modal-box {
             background: white; border-radius: 12px;
             width: 92%; max-width: 480px; max-height: 85vh;
             overflow-y: auto; padding: 24px;
@@ -131,17 +136,37 @@
             border: none; border-radius: 6px; cursor: pointer; font-size: 14px;
         }
         .btn-danger:hover { background: #b02a37; }
-        .btn-danger:disabled { background: #e8a0a8; cursor: not-allowed; }
         .btn-subst {
             flex: 2; padding: 10px; background: #007bff; color: white;
             border: none; border-radius: 6px; cursor: pointer; font-size: 14px;
         }
         .btn-subst:hover { background: #0056b3; }
 
+        .edit-qtd {
+            margin-top: 14px; padding-top: 14px;
+            border-top: 1px solid #eee;
+        }
+        .edit-qtd-titulo { margin: 0 0 8px; font-size: 14px; font-weight: bold; color: #444; }
+        .edit-qtd-modos { display: flex; gap: 20px; font-size: 13px; margin-bottom: 8px; }
+        .edit-qtd-modos label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .edit-qtd-modos input[type="radio"] { width: auto; }
+        .edit-qtd-row { display: flex; gap: 8px; align-items: center; }
+        .edit-qtd-row input { flex: 1; }
+        .btn-salvar {
+            padding: 8px 16px; background: #28a745; color: white;
+            border: none; border-radius: 4px; cursor: pointer; font-size: 14px; white-space: nowrap;
+        }
+        .btn-salvar:hover { background: #218838; }
+        .edit-preview { font-size: 12px; color: #888; margin-top: 6px; min-height: 16px; }
+
         #painelSubstituicao { margin-top: 18px; }
         #painelSubstituicao h4 { margin: 0 0 10px; color: #444; font-size: 15px; }
         #buscaSubst { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 10px; }
-        #listaSubst { max-height: 280px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; }
+        #listaSubst { max-height: 240px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; }
+
+        /* modal de adicionar alimento */
+        #buscaAdd { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 10px; }
+        #listaAdd { max-height: 200px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 14px; }
 
         .subst-item {
             padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0;
@@ -149,6 +174,7 @@
         }
         .subst-item:last-child { border-bottom: none; }
         .subst-item:hover { background: #eef4ff; }
+        .subst-item.selecionado { background: #e8f4fd; }
         .subst-nome { font-size: 14px; color: #333; font-weight: bold; }
         .subst-info { font-size: 12px; color: #888; margin-top: 3px; }
 
@@ -258,7 +284,8 @@
         <div id="erroPlan" class="msg-erro"></div>
         <div id="planoDias" style="margin-top:20px; display:none;">
             <p style="font-size:13px; color:#888; margin-top:0;">
-                Clique em qualquer alimento para <strong>remover</strong> ou <strong>substituir</strong> por outro do banco.
+                Clique em um alimento para <strong>editar quantidade</strong>, <strong>remover</strong> ou <strong>substituir</strong>.
+                Use <strong>+ Adicionar</strong> para inserir novos alimentos em qualquer refeição.
             </p>
             <div class="dias-nav" id="diasNav"></div>
             <div id="diasConteudo"></div>
@@ -271,7 +298,7 @@
     <div class="card">
         <h2>Adicionar Alimento</h2>
         <p style="color:#555; font-size:14px; margin-top:0;">
-            Adicione alimentos personalizados. Eles aparecerão como opções de substituição no plano semanal.
+            Adicione alimentos personalizados. Eles aparecerão como opções no plano semanal.
         </p>
         <form id="alimentoForm">
             <div class="form-group">
@@ -298,15 +325,31 @@
                     <input type="number" id="alGord" step="0.1" min="0" required>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Tipo de Refeição</label>
-                <select id="alTipo" required>
-                    <option value="">Selecione</option>
-                    <option value="cafe">Café da Manhã</option>
-                    <option value="almoco">Almoço</option>
-                    <option value="lanche">Lanche</option>
-                    <option value="jantar">Jantar</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo de Refeição</label>
+                    <select id="alTipo" required>
+                        <option value="">Selecione</option>
+                        <option value="cafe">Café da Manhã</option>
+                        <option value="almoco">Almoço</option>
+                        <option value="lanche">Lanche</option>
+                        <option value="jantar">Jantar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Grupo Alimentar</label>
+                    <select id="alGrupo" required>
+                        <option value="">Selecione</option>
+                        <option value="proteina">Proteína (carnes, ovos, peixe)</option>
+                        <option value="carboidrato">Carboidrato (arroz, pão, aveia)</option>
+                        <option value="vegetal">Vegetal (brócolis, cenoura)</option>
+                        <option value="leguminosa">Leguminosa (feijão, lentilha)</option>
+                        <option value="fruta">Fruta</option>
+                        <option value="laticinios">Laticínios (iogurte, queijo)</option>
+                        <option value="oleaginosa">Oleaginosa (castanha, amendoim)</option>
+                        <option value="suplemento">Suplemento (whey, etc.)</option>
+                    </select>
+                </div>
             </div>
             <button type="submit" class="btn-green">Adicionar Alimento</button>
         </form>
@@ -315,9 +358,9 @@
     </div>
 </div>
 
-<!-- ── Modal de alimento ────────────────────────────────────────────────────── -->
-<div id="modalOverlay" onclick="fecharModal()">
-    <div id="modalBox" onclick="event.stopPropagation()">
+<!-- ── Modal: editar alimento ───────────────────────────────────────────────── -->
+<div id="modalOverlay" class="modal-overlay" onclick="fecharModal()">
+    <div id="modalBox" class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <h3 id="modalNome"></h3>
             <button class="btn-close" onclick="fecharModal()">✕</button>
@@ -328,30 +371,34 @@
         <table class="nutr-table">
             <thead>
                 <tr>
-                    <th></th>
-                    <th>Kcal</th>
-                    <th>Prot.</th>
-                    <th>Carb.</th>
-                    <th>Gord.</th>
+                    <th></th><th>Kcal</th><th>Prot.</th><th>Carb.</th><th>Gord.</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>Por 100g</td>
-                    <td id="mCal">-</td>
-                    <td id="mProt">-</td>
-                    <td id="mCarb">-</td>
-                    <td id="mGord">-</td>
+                    <td id="mCal">-</td><td id="mProt">-</td><td id="mCarb">-</td><td id="mGord">-</td>
                 </tr>
                 <tr>
                     <td>Na porção</td>
-                    <td id="mCalPor">-</td>
-                    <td id="mProtPor">-</td>
-                    <td id="mCarbPor">-</td>
-                    <td id="mGordPor">-</td>
+                    <td id="mCalPor">-</td><td id="mProtPor">-</td><td id="mCarbPor">-</td><td id="mGordPor">-</td>
                 </tr>
             </tbody>
         </table>
+
+        <!-- Editar quantidade -->
+        <div class="edit-qtd">
+            <p class="edit-qtd-titulo">Ajustar quantidade</p>
+            <div class="edit-qtd-modos">
+                <label><input type="radio" name="modoEd" value="gramas" checked onchange="atualizarPreviewEd()"> Gramas</label>
+                <label><input type="radio" name="modoEd" value="kcal" onchange="atualizarPreviewEd()"> Calorias (kcal)</label>
+            </div>
+            <div class="edit-qtd-row">
+                <input type="number" id="editValor" min="1" placeholder="300" oninput="atualizarPreviewEd()">
+                <button class="btn-salvar" onclick="salvarQtd()">Salvar</button>
+            </div>
+            <div class="edit-preview" id="editPreview"></div>
+        </div>
 
         <div class="modal-acoes">
             <button class="btn-danger" onclick="removerPorcao()">Remover</button>
@@ -363,6 +410,33 @@
             <h4>Escolha um substituto:</h4>
             <input id="buscaSubst" type="text" placeholder="Buscar alimento..." oninput="filtrarSubstitutos()">
             <div id="listaSubst"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal: adicionar alimento à refeição ──────────────────────────────────── -->
+<div id="addOverlay" class="modal-overlay" onclick="fecharAdd()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Adicionar alimento</h3>
+            <button class="btn-close" onclick="fecharAdd()">✕</button>
+        </div>
+        <p id="addRefeicaoInfo" style="font-size:13px; color:#666; margin:0 0 12px;"></p>
+        <input id="buscaAdd" type="text" placeholder="Buscar alimento..." oninput="filtrarAdd()">
+        <div id="listaAdd"></div>
+
+        <div id="addQtdPanel" style="display:none;">
+            <hr style="border-color:#eee; margin:12px 0;">
+            <p style="margin:0 0 6px; font-size:14px; font-weight:bold; color:#333;" id="addAlNome"></p>
+            <div class="edit-qtd-modos">
+                <label><input type="radio" name="modoAdd" value="gramas" checked onchange="atualizarPreviewAdd()"> Gramas</label>
+                <label><input type="radio" name="modoAdd" value="kcal" onchange="atualizarPreviewAdd()"> Calorias (kcal)</label>
+            </div>
+            <div class="edit-qtd-row">
+                <input type="number" id="addValor" min="1" placeholder="Ex: 200" oninput="atualizarPreviewAdd()">
+                <button class="btn-salvar" onclick="confirmarAdd()">Adicionar</button>
+            </div>
+            <div class="edit-preview" id="addPreview"></div>
         </div>
     </div>
 </div>
@@ -430,24 +504,22 @@
     }
 
     // ── Plano Semanal ────────────────────────────────────────────────────────
-    let planoAtual      = null;
-    let alimentosBanco  = [];
-    let diaAtivo        = 0;
-    // referência ao alimento que está no modal
-    let modalDia, modalRefKey, modalPorcaoIdx, modalTipo;
+    let planoAtual     = null;
+    let alimentosBanco = [];
+    let diaAtivo       = 0;
+    let modalDia, modalRefKey, modalPorcaoIdx;
 
     const objLabel = { perder_gordura: 'Perder Gordura', manter_peso: 'Manter Peso', ganhar_massa: 'Ganhar Massa' };
 
     function atualizarInfoPlano() {
         const cal = localStorage.getItem('calorias');
         const obj = localStorage.getItem('objetivo');
-        document.getElementById('semCalculo').style.display   = cal ? 'none'  : 'block';
-        document.getElementById('comCalculo').style.display   = cal ? 'block' : 'none';
+        document.getElementById('semCalculo').style.display = cal ? 'none'  : 'block';
+        document.getElementById('comCalculo').style.display = cal ? 'block' : 'none';
         if (cal) {
             document.getElementById('planoCalInfo').textContent = Math.round(parseFloat(cal));
             document.getElementById('planoObjInfo').textContent = objLabel[obj] || obj;
         }
-        // pré-carrega o banco para a substituição
         if (cal) carregarBanco();
     }
 
@@ -482,8 +554,8 @@
         .catch(() => { document.getElementById('erroPlan').textContent = 'Erro na conexão.'; });
     }
 
-    const diasNomes  = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
-    const refKeys    = ['dpCafe','dpAlmoco','dpLanche','dpJantar'];
+    const diasNomes = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+    const refKeys   = ['dpCafe','dpAlmoco','dpLanche','dpJantar'];
 
     function renderizarPlano(ativarDia) {
         diaAtivo = ativarDia;
@@ -493,23 +565,22 @@
         cont.innerHTML = '';
 
         planoAtual.forEach((dia, i) => {
-            // botão do dia
             const btn = document.createElement('button');
-            btn.className  = 'dia-btn' + (i === ativarDia ? ' active' : '');
+            btn.className   = 'dia-btn' + (i === ativarDia ? ' active' : '');
             btn.textContent = diasNomes[i] || ('Dia ' + dia.dpDia);
             btn.onclick = () => renderizarPlano(i);
             nav.appendChild(btn);
 
-            // painel do dia
             const panel = document.createElement('div');
             panel.className = 'dia-panel' + (i === ativarDia ? ' active' : '');
             panel.id = 'dia-' + i;
 
             refKeys.forEach(key => {
                 const ref = dia[key];
-                let porcoeHtml = '';
+                let porcoesHtml = '';
+
                 ref.rdPorcoes.forEach((p, pi) => {
-                    porcoeHtml += `
+                    porcoesHtml += `
                         <div class="porcao-row" onclick="abrirModal(${i}, '${key}', ${pi})">
                             <span class="porcao-nome">${p.pNome}</span>
                             <span>
@@ -518,16 +589,21 @@
                             </span>
                         </div>`;
                 });
+
                 if (ref.rdPorcoes.length === 0) {
-                    porcoeHtml = `<div class="porcao-row" style="color:#aaa; cursor:default;">Refeição vazia</div>`;
+                    porcoesHtml = `<div class="porcao-row" style="color:#aaa; cursor:default; font-size:13px;">Refeição vazia</div>`;
                 }
+
                 panel.innerHTML += `
                     <div class="refeicao-card">
                         <div class="refeicao-header">
                             <span>${ref.rdTipo}</span>
-                            <span class="refeicao-kcal">${ref.rdCalorias} kcal</span>
+                            <span style="display:flex; align-items:center; gap:10px;">
+                                <span class="refeicao-kcal">${ref.rdCalorias} kcal</span>
+                                <button class="btn-add-food" onclick="event.stopPropagation(); abrirAddFood(${i}, '${key}')">+ Adicionar</button>
+                            </span>
                         </div>
-                        ${porcoeHtml}
+                        ${porcoesHtml}
                     </div>`;
             });
 
@@ -537,37 +613,34 @@
         document.getElementById('planoDias').style.display = 'block';
     }
 
-    // ── Modal ────────────────────────────────────────────────────────────────
+    // ── Modal: editar alimento ───────────────────────────────────────────────
     function abrirModal(diaIdx, refKey, porcaoIdx) {
         modalDia       = diaIdx;
         modalRefKey    = refKey;
         modalPorcaoIdx = porcaoIdx;
 
-        const ref = planoAtual[diaIdx][refKey];
-        const p   = ref.rdPorcoes[porcaoIdx];
-        modalTipo = p.pTipo;
+        const p = planoAtual[diaIdx][refKey].rdPorcoes[porcaoIdx];
 
         document.getElementById('modalNome').textContent = p.pNome;
         document.getElementById('modalQtd').textContent  = `Porção: ${p.pGramas}g  ·  ${Math.round(p.pCalorias)} kcal`;
 
-        // Desativa Remover se for o único alimento da refeição
-        document.querySelector('.btn-danger').disabled = ref.rdPorcoes.length <= 1;
-
-        // Por 100g — pCal100g pode ser estimado; os demais exibem '-' se ausentes
         const cal100 = p.pCal100g ?? (p.pGramas > 0 ? Math.round(p.pCalorias / p.pGramas * 100) : null);
         document.getElementById('mCal').textContent  = cal100 != null ? cal100 : '-';
         document.getElementById('mProt').textContent = p.pProt100g != null ? p.pProt100g + 'g' : '-';
         document.getElementById('mCarb').textContent = p.pCarb100g != null ? p.pCarb100g + 'g' : '-';
         document.getElementById('mGord').textContent = p.pGord100g != null ? p.pGord100g + 'g' : '-';
 
-        // Na porção
         const f = p.pGramas / 100;
         document.getElementById('mCalPor').textContent  = Math.round(p.pCalorias);
         document.getElementById('mProtPor').textContent = p.pProt100g != null ? (p.pProt100g * f).toFixed(1) + 'g' : '-';
         document.getElementById('mCarbPor').textContent = p.pCarb100g != null ? (p.pCarb100g * f).toFixed(1) + 'g' : '-';
         document.getElementById('mGordPor').textContent = p.pGord100g != null ? (p.pGord100g * f).toFixed(1) + 'g' : '-';
 
-        // Fecha o painel de substituição
+        // pré-preenche o campo de edição de quantidade
+        document.querySelector('input[name="modoEd"][value="gramas"]').checked = true;
+        document.getElementById('editValor').value = Math.round(p.pGramas);
+        atualizarPreviewEd();
+
         document.getElementById('painelSubstituicao').style.display = 'none';
         document.getElementById('buscaSubst').value = '';
 
@@ -578,23 +651,55 @@
         document.getElementById('modalOverlay').classList.remove('show');
     }
 
-    function removerPorcao() {
-        const ref = planoAtual[modalDia][modalRefKey];
-        ref.rdPorcoes.splice(modalPorcaoIdx, 1);
+    // ── Editar quantidade ────────────────────────────────────────────────────
+    function atualizarPreviewEd() {
+        const p     = planoAtual[modalDia]?.[modalRefKey]?.rdPorcoes[modalPorcaoIdx];
+        if (!p) return;
+        const modo  = document.querySelector('input[name="modoEd"]:checked').value;
+        const valor = parseFloat(document.getElementById('editValor').value);
+        const prev  = document.getElementById('editPreview');
 
-        // Se sobrou só um alimento, ele fica com 100% das calorias da refeição
-        if (ref.rdPorcoes.length === 1) {
-            const p = ref.rdPorcoes[0];
-            p.pCalorias = ref.rdCalorias;
-            if (p.pCal100g > 0) {
-                p.pGramas = Math.round(p.pCalorias / p.pCal100g * 100);
-            }
+        if (!valor || valor <= 0) { prev.textContent = ''; return; }
+
+        if (modo === 'gramas') {
+            const kcal = p.pCal100g > 0 ? Math.round(valor / 100 * p.pCal100g) : '?';
+            prev.textContent = `≈ ${kcal} kcal`;
+        } else {
+            const gramas = p.pCal100g > 0 ? Math.round(valor / p.pCal100g * 100) : '?';
+            prev.textContent = `≈ ${gramas}g`;
+        }
+    }
+
+    function salvarQtd() {
+        const ref   = planoAtual[modalDia][modalRefKey];
+        const p     = ref.rdPorcoes[modalPorcaoIdx];
+        const modo  = document.querySelector('input[name="modoEd"]:checked').value;
+        const valor = parseFloat(document.getElementById('editValor').value);
+        if (!valor || valor <= 0) return;
+
+        if (modo === 'gramas') {
+            p.pGramas   = Math.round(valor);
+            p.pCalorias = p.pCal100g > 0 ? Math.round(valor / 100 * p.pCal100g) : p.pCalorias;
+        } else {
+            p.pCalorias = Math.round(valor);
+            p.pGramas   = p.pCal100g > 0 ? Math.round(valor / p.pCal100g * 100) : p.pGramas;
         }
 
+        ref.rdCalorias = Math.round(ref.rdPorcoes.reduce((s, por) => s + por.pCalorias, 0));
         fecharModal();
         renderizarPlano(modalDia);
     }
 
+    // ── Remover porção ───────────────────────────────────────────────────────
+    function removerPorcao() {
+        const ref = planoAtual[modalDia][modalRefKey];
+        ref.rdPorcoes.splice(modalPorcaoIdx, 1);
+        ref.rdCalorias = Math.round(ref.rdPorcoes.reduce((s, p) => s + p.pCalorias, 0));
+        fecharModal();
+        renderizarPlano(modalDia);
+    }
+
+    // ── Substituir porção ────────────────────────────────────────────────────
     function abrirSubstituicao() {
         document.getElementById('painelSubstituicao').style.display = 'block';
         renderizarSubstitutos('');
@@ -612,11 +717,8 @@
             return;
         }
 
-        const termo = busca.toLowerCase();
-        const filtrados = alimentosBanco.filter(a =>
-            (!modalTipo || a.tipo === modalTipo) &&
-            a.nome.toLowerCase().includes(termo)
-        );
+        const termo     = busca.toLowerCase();
+        const filtrados = alimentosBanco.filter(a => a.nome.toLowerCase().includes(termo));
 
         lista.innerHTML = '';
 
@@ -642,7 +744,6 @@
         const ref    = planoAtual[modalDia][modalRefKey];
         const porcao = ref.rdPorcoes[modalPorcaoIdx];
 
-        // Mantém as mesmas calorias, recalcula a quantidade em gramas
         const novasGramas = Math.round(porcao.pCalorias / novoAlimento.cal * 100);
 
         porcao.pNome     = novoAlimento.nome;
@@ -653,11 +754,122 @@
         porcao.pGord100g = novoAlimento.gord;
         porcao.pTipo     = novoAlimento.tipo;
 
+        ref.rdCalorias = Math.round(ref.rdPorcoes.reduce((s, p) => s + p.pCalorias, 0));
         fecharModal();
         renderizarPlano(modalDia);
     }
 
-    // ── Adicionar Alimento ───────────────────────────────────────────────────
+    // ── Adicionar alimento à refeição ────────────────────────────────────────
+    let addDia, addRefKey, addAlimentoSel;
+
+    function abrirAddFood(diaIdx, refKey) {
+        addDia          = diaIdx;
+        addRefKey       = refKey;
+        addAlimentoSel  = null;
+
+        const ref = planoAtual[diaIdx][refKey];
+        document.getElementById('addRefeicaoInfo').textContent = `Adicionando ao: ${ref.rdTipo}`;
+        document.getElementById('buscaAdd').value = '';
+        document.getElementById('addQtdPanel').style.display = 'none';
+        filtrarAdd();
+
+        document.getElementById('addOverlay').classList.add('show');
+    }
+
+    function fecharAdd() {
+        document.getElementById('addOverlay').classList.remove('show');
+    }
+
+    function filtrarAdd() {
+        const termo = document.getElementById('buscaAdd').value.toLowerCase();
+        const lista = document.getElementById('listaAdd');
+
+        if (alimentosBanco.length === 0) {
+            lista.innerHTML = '<div style="padding:12px; color:#999; font-size:13px;">Banco não carregado. Recarregue a página.</div>';
+            return;
+        }
+
+        const filtrados = alimentosBanco.filter(a => a.nome.toLowerCase().includes(termo));
+        lista.innerHTML = '';
+
+        if (filtrados.length === 0) {
+            lista.innerHTML = '<div style="padding:12px; color:#999; font-size:13px;">Nenhum alimento encontrado.</div>';
+            return;
+        }
+
+        filtrados.forEach(a => {
+            const div = document.createElement('div');
+            div.className = 'subst-item';
+            div.innerHTML = `
+                <div class="subst-nome">${a.nome}</div>
+                <div class="subst-info">${a.cal} kcal &nbsp;·&nbsp; Prot: ${a.prot}g &nbsp;·&nbsp; Carb: ${a.carb}g &nbsp;·&nbsp; Gord: ${a.gord}g <span style="color:#aaa">(por 100g)</span></div>`;
+            div.onclick = () => selecionarAddAlimento(a, div);
+            lista.appendChild(div);
+        });
+    }
+
+    function selecionarAddAlimento(a, divEl) {
+        addAlimentoSel = a;
+        document.querySelectorAll('#listaAdd .subst-item').forEach(d => d.classList.remove('selecionado'));
+        divEl.classList.add('selecionado');
+
+        document.getElementById('addAlNome').textContent = a.nome;
+        document.getElementById('addValor').value = '';
+        document.getElementById('addPreview').textContent = '';
+        document.querySelector('input[name="modoAdd"][value="gramas"]').checked = true;
+        document.getElementById('addQtdPanel').style.display = 'block';
+    }
+
+    function atualizarPreviewAdd() {
+        if (!addAlimentoSel) return;
+        const modo  = document.querySelector('input[name="modoAdd"]:checked').value;
+        const valor = parseFloat(document.getElementById('addValor').value);
+        const prev  = document.getElementById('addPreview');
+
+        if (!valor || valor <= 0) { prev.textContent = ''; return; }
+
+        if (modo === 'gramas') {
+            prev.textContent = `≈ ${Math.round(valor / 100 * addAlimentoSel.cal)} kcal`;
+        } else {
+            prev.textContent = `≈ ${Math.round(valor / addAlimentoSel.cal * 100)}g`;
+        }
+    }
+
+    function confirmarAdd() {
+        if (!addAlimentoSel) return;
+        const modo  = document.querySelector('input[name="modoAdd"]:checked').value;
+        const valor = parseFloat(document.getElementById('addValor').value);
+        if (!valor || valor <= 0) return;
+
+        let gramas, calorias;
+        if (modo === 'gramas') {
+            gramas   = Math.round(valor);
+            calorias = Math.round(valor / 100 * addAlimentoSel.cal);
+        } else {
+            calorias = Math.round(valor);
+            gramas   = Math.round(valor / addAlimentoSel.cal * 100);
+        }
+
+        const novaPorcao = {
+            pNome:     addAlimentoSel.nome,
+            pGramas:   gramas,
+            pCalorias: calorias,
+            pCal100g:  addAlimentoSel.cal,
+            pProt100g: addAlimentoSel.prot,
+            pCarb100g: addAlimentoSel.carb,
+            pGord100g: addAlimentoSel.gord,
+            pTipo:     addAlimentoSel.tipo
+        };
+
+        const ref = planoAtual[addDia][addRefKey];
+        ref.rdPorcoes.push(novaPorcao);
+        ref.rdCalorias = Math.round(ref.rdPorcoes.reduce((s, p) => s + p.pCalorias, 0));
+
+        fecharAdd();
+        renderizarPlano(addDia);
+    }
+
+    // ── Adicionar Alimento ao banco ──────────────────────────────────────────
     document.getElementById('alimentoForm').addEventListener('submit', function(e) {
         e.preventDefault();
         document.getElementById('msgAlimento').style.display = 'none';
@@ -670,7 +882,8 @@
             naProt:   parseFloat(document.getElementById('alProt').value),
             naCarb:   parseFloat(document.getElementById('alCarb').value),
             naGord:   parseFloat(document.getElementById('alGord').value),
-            naTipo:   document.getElementById('alTipo').value
+            naTipo:   document.getElementById('alTipo').value,
+            naGrupo:  document.getElementById('alGrupo').value
         };
 
         fetch(window.location.origin + '/api/alimento', {
@@ -685,7 +898,7 @@
                 msg.textContent = d.message || 'Alimento adicionado!';
                 msg.style.display = 'block';
                 document.getElementById('alimentoForm').reset();
-                carregarBanco(); // atualiza o banco para a substituição
+                carregarBanco();
             } else {
                 document.getElementById('erroAlimento').textContent = d.message || 'Erro ao adicionar.';
             }

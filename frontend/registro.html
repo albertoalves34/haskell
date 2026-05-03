@@ -126,9 +126,10 @@
             .then(response => {
                 if (response.ok) {
                     // Resposta com sucesso (código 200, 201)
-                    divMensagem.textContent = "Usuário registrado com sucesso!";
+                    divMensagem.textContent = "Usuário registrado com sucesso! Redirecionando...";
                     divMensagem.className = "sucesso";
-                    document.getElementById('registroForm').reset(); // Limpa o formulário
+                    document.getElementById('registroForm').reset();
+                    setTimeout(() => { window.location.href = '/login'; }, 1500);
                 } else {
                     // Resposta com erro (código 400, 500)
                     divMensagem.textContent = "Erro ao registrar usuário.";

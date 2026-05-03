@@ -17,3 +17,18 @@ executable dietaapp
     ghc-options:      -threaded
     default-language: Haskell2010
     default-extensions: LambdaCase
+
+executable testes
+    main-is:          RunTestes.hs
+    other-modules:    Testes, Banco, Login, Calculate, Alimento, Plano
+    build-depends:    base        >=4.14 && <5,
+                      HUnit,
+                      scotty,
+                      aeson,
+                      wai-cors,
+                      sqlite-simple,
+                      http-types,
+                      directory
+    ghc-options:      -threaded
+    default-language: Haskell2010
+    default-extensions: LambdaCase

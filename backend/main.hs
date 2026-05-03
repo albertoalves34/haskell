@@ -48,6 +48,7 @@ data NovoAlimentoData = NovoAlimentoData
   , naCarb   :: Double
   , naGord   :: Double
   , naTipo   :: String  -- "cafe" | "almoco" | "lanche" | "jantar"
+  , naGrupo  :: String  -- "proteina" | "carboidrato" | "vegetal" | ...
   } deriving (Show, Generic)
 
 instance FromJSON NovoAlimentoData
@@ -83,6 +84,9 @@ parseObjetivo _                = Nothing
 
 tiposValidos :: [String]
 tiposValidos = ["cafe", "almoco", "lanche", "jantar"]
+
+gruposValidos :: [String]
+gruposValidos = ["proteina", "carboidrato", "vegetal", "leguminosa", "fruta", "laticinios", "oleaginosa", "suplemento"]
 
 -- ─── Main ─────────────────────────────────────────────────────────────────────
 
@@ -148,12 +152,12 @@ main = do
     -- Adicionar alimento ao banco do usuário
     post "/api/alimento" $ do
       dados <- jsonData :: ActionM NovoAlimentoData
-      if naTipo dados `elem` tiposValidos
+      if naTipo dados `elem` tiposValidos && naGrupo dados `elem` gruposValidos
         then do
           liftIO $ addAlimento conn
             (naNome dados) (naCal dados) (naProt dados)
             (naCarb dados) (naGord dados) (naTipo dados)
-            (naUserId dados)
+            (naGrupo dados) (naUserId dados)
           json $ object
             [ "status"  .= ("ok" :: String)
             , "message" .= ("Alimento adicionado com sucesso!" :: String)
@@ -162,7 +166,7 @@ main = do
           status status400
           json $ object
             [ "status"  .= ("error" :: String)
-            , "message" .= ("Tipo de refeição invalido. Use: cafe, almoco, lanche ou jantar." :: String)
+            , "message" .= ("Tipo de refeição ou grupo alimentar inválido." :: String)
             ]
 
     -- Listar alimentos disponíveis para o usuário
