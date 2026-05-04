@@ -86,9 +86,13 @@ Após os arquivos estarem publicados no GitHub, eu realizei o registro na plataf
 
 ## 7. Resultado final
 
-Apresente o resultado final do trabalho, na forma de GIF animado ou vídeo curto (máximo 60s).
 
-Você também pode acrescentar uma breve explicação sobre o que está sendo demonstrado.
+
+https://github.com/user-attachments/assets/cb95bfc8-6e2a-49a4-a922-3d1c4674ac7e
+
+**Funcionamento**
+
+
 
 ---
 
